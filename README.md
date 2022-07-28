@@ -1,6 +1,7 @@
 # Lotto ticket generator 💰💰
 
 ![GitHub Pipenv locked Python version](https://img.shields.io/github/pipenv/locked/python-version/mrpbennett/lottery-generator?style=for-the-badge)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg?style=for-the-badge)](https://github.com/psf/black)
 ![FastAPI](https://img.shields.io/badge/fastapi-009688.svg?&style=for-the-badge&logo=fastapi&logoColor=white)
 ![React](https://img.shields.io/badge/react-35495e.svg?&style=for-the-badge&logo=react&logoColor=61DAFB)
 
