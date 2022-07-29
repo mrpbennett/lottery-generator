@@ -15,21 +15,7 @@ key = os.getenv("SUPABASE_KEY")
 supabase: Client = create_client(url, key)
 
 
-def generate_numbers(ticket: str) -> list[int]:
-    """If you're feeling lucky you can generarte your own numbers"""
-    numbers = []
-
-    if ticket == "euros":
-        numbers.extend(random.sample(range(1, 50 + 1), 5))
-        numbers.extend(random.sample(range(1, 13 + 1), 2))
-
-    elif ticket == "lotto":
-        numbers.extend(random.sample(range(1, 60 + 1), 6))
-
-    return numbers
-
-
-def download_latest_lotto_draw_file() -> None:
+def download_latest_euro_draw_file() -> None:
     """
     Downloads the latest draw history from the website.
     Then adds them into a supabase database if no date is duplicated.
@@ -38,7 +24,7 @@ def download_latest_lotto_draw_file() -> None:
 
     """
     res = requests.get(
-        "https://www.national-lottery.co.uk/results/lotto/draw-history/csv"
+        "https://www.national-lottery.co.uk/results/euromillions/draw-history/csv"
     )
     with open("./data/draw-history.csv", "wb") as f:
         f.write(res.content)
@@ -52,8 +38,8 @@ def download_latest_lotto_draw_file() -> None:
             "Ball 3",
             "Ball 4",
             "Ball 5",
-            "Ball 6",
-            "Bonus Ball",
+            "Lucky Star 1",
+            "Lucky Star 2",
         ]
     ]
 
@@ -64,7 +50,7 @@ def download_latest_lotto_draw_file() -> None:
     # when putting new data into the database
     draw_dates: list = [
         date["draw_date"]
-        for date in supabase.table("lotto_draw_history")
+        for date in supabase.table("euro_draw_history")
         .select("draw_date")
         .execute()
         .data
@@ -81,24 +67,25 @@ def download_latest_lotto_draw_file() -> None:
                 "ball_3": num[3],
                 "ball_4": num[4],
                 "ball_5": num[5],
-                "ball_6": num[6],
-                "bonus_ball": num[7],
+                "lucky_star_1": num[6],
+                "lucky_star_2": num[7],
             }
 
             # insert row into supabase when no duplicate dates are found.
-            supabase.table("lotto_draw_history").insert(row).execute()
+            supabase.table("euro_draw_history").insert(row).execute()
 
 
-def drawn_lotto_numbers() -> dict:
+def drawn_euro_numbers() -> dict:
     """
-    Collects draw history from supabase. Then returns a dictionary
+    Collects non duplicate draw history from supabase. Then returns a dictionary
     with a list of drawn numbers and drawn lucky_stars
     """
 
     drawn_numbers: list[int] = []
+    drawn_stars: list[int] = []
 
     # get the latest draw numbers from the database
-    json_data = supabase.table("lotto_draw_history").select("*").execute()
+    json_data = supabase.table("euro_draw_history").select("*").execute()
 
     # put drawn numbers in a list to check common numbers
     for number in json_data.data:
@@ -109,59 +96,70 @@ def drawn_lotto_numbers() -> dict:
                 number["ball_3"],
                 number["ball_4"],
                 number["ball_5"],
-                number["ball_6"],
-                number["bonus_ball"],
             )
         )
+        drawn_stars.extend((number["lucky_star_1"], number["lucky_star_2"]))
 
-    return dict(drawn_numbers=drawn_numbers)
-
-
-def collect_duplicate_lotto_numbers() -> dict:
-    """Collect the drawn numbers and count them to return them sorted"""
-
-    data = drawn_lotto_numbers()
-
-    numbers = Counter(data["drawn_numbers"]).most_common()
-
-    return dict(lotto=numbers)
+    return dict(numbers=drawn_numbers, stars=drawn_stars)
 
 
-def get_highest_lotto_count(data) -> list:
-    """Takes all numbers from 2nd index then extracts the top 6 numbers"""
-    numbers = data["lotto"]
+def collect_duplicate_euro_numbers() -> dict:
+    """Collect the drawn numbers and stars and counts them to return them sorted"""
+
+    data = drawn_euro_numbers()
+
+    numbers = Counter(data["numbers"]).most_common()
+    stars = Counter(data["stars"]).most_common()
+
+    return dict(numbers=numbers, stars=stars)
+
+
+def get_highest_euro_numbers_stars(data) -> dict:
+    numbers = data["numbers"]
+    stars = data["stars"]
+
     highest_count_numbers: list = [num[1] for num in numbers]
     high_count_nums = list(set(highest_count_numbers))
     high_count_nums.reverse()
 
-    return high_count_nums[:6]
+    highest_count_stars: list = [num[1] for num in stars]
+    high_count_stars = list(set(highest_count_stars))
+    high_count_stars.reverse()
+
+    return dict(numbers=high_count_nums[:5], stars=high_count_stars[:2])
 
 
-def common_lotto_generator() -> list:
-    """
-    This takes the top 6 numbers from get_highest_lotto_count and generates a list
-    from the all the numbers that have the same 2nd index.
+def common_euros_generator() -> dict:
 
-    Then generates a random 6 digit number from the list.
-    """
-    high_count_numbers = get_highest_lotto_count(collect_duplicate_lotto_numbers())
-    data = collect_duplicate_lotto_numbers()
-    numbers = data["lotto"]
+    high_count_nums_stars = get_highest_euro_numbers_stars(
+        collect_duplicate_euro_numbers()
+    )
+    data = collect_duplicate_euro_numbers()
+
+    numbers = data["numbers"]
+    stars = data["stars"]
 
     common_number_drawn: list = [
-        num[0] for num in numbers if num[1] in high_count_numbers
+        num[0] for num in numbers if num[1] in high_count_nums_stars["numbers"]
     ]
 
-    return random.sample(common_number_drawn, 6)
+    common_star_drawn: list = [
+        num[0] for num in stars if num[1] in high_count_nums_stars["stars"]
+    ]
+
+    return dict(
+        numbers=random.sample(common_number_drawn, 6),
+        stars=random.sample(common_star_drawn, 2),
+    )
 
 
 def main():
 
     # Step 1: Download the latest draw history from the website
-    download_latest_lotto_draw_file()
+    download_latest_euro_draw_file()
 
     # Step 2: Collect the latest seperated draw history from the database
-    drawn_lotto_numbers()
+    drawn_euro_numbers()
 
 
 if __name__ == "__main__":
