@@ -7,6 +7,7 @@ const supabase = createClient(
 )
 
 function App() {
+  // Lottery numbers
   const [lotto, setLotto] = useState([])
   const [numbers, setNumbers] = useState([])
   const [stars, setStars] = useState([])
@@ -21,6 +22,7 @@ function App() {
 
   // number generate
   const [lottoNumber, setLottoNumber] = useState([])
+  const [eurosNumber, setEurosNumber] = useState([])
 
   const getLottoNumbers = async () => {
     await fetch('//127.0.0.1:8000/lotto')
@@ -91,7 +93,17 @@ function App() {
       .catch(error => console.error(error))
   }
 
+  const generateEurosNumber = async () => {
+    await fetch('//127.0.0.1:8000/generate-euros')
+      .then(res => res.json())
+      .then(data => setEurosNumber(data))
+      .catch(error => console.error(error))
+  }
+
+  console.log(eurosNumber)
+
   useEffect(() => {
+    // get numbers from api
     getLottoNumbers()
     getEuroNumbers()
 
@@ -190,33 +202,66 @@ function App() {
           rows of data.
         </div>
 
-        <div>
-          <button
-            className="rounded-md bg-blue-500 px-6 py-2 font-semibold text-white shadow-md"
-            onClick={generateLottoNumber}
-          >
-            Generate lotto ticket
-          </button>
+        <div className="space-y-20">
+          <div>
+            <button
+              className="rounded-md bg-blue-500 px-6 py-2 font-semibold text-white shadow-md"
+              onClick={generateLottoNumber}
+            >
+              Generate lotto ticket
+            </button>
+            <div className="mt-10 space-x-4">
+              <span className="rounded-full bg-blue-100 p-4 text-blue-800 shadow-md">
+                {lottoNumber.length !== 0 ? lottoNumber[0] : '00'}
+              </span>
+              <span className="rounded-full bg-blue-100 p-4 text-blue-800 shadow-md">
+                {lottoNumber.length !== 0 ? lottoNumber[1] : '00'}
+              </span>
+              <span className="rounded-full bg-blue-100 p-4 text-blue-800 shadow-md">
+                {lottoNumber.length !== 0 ? lottoNumber[2] : '00'}
+              </span>
+              <span className="rounded-full bg-blue-100 p-4 text-blue-800 shadow-md">
+                {lottoNumber.length !== 0 ? lottoNumber[3] : '00'}
+              </span>
+              <span className="rounded-full bg-blue-100 p-4 text-blue-800 shadow-md">
+                {lottoNumber.length !== 0 ? lottoNumber[4] : '00'}
+              </span>
+              <span className="rounded-full bg-blue-100 p-4 text-blue-800 shadow-md">
+                {lottoNumber.length !== 0 ? lottoNumber[5] : '00'}
+              </span>
+            </div>
+          </div>
+          <div>
+            <button
+              className="rounded-md bg-blue-500 px-6 py-2 font-semibold text-white shadow-md"
+              onClick={generateEurosNumber}
+            >
+              Generate euros ticket
+            </button>
 
-          <div className="mt-10 space-x-4">
-            <span className="rounded-full bg-blue-100 p-4 text-blue-800 shadow-md">
-              {lottoNumber.length !== 0 ? lottoNumber[0] : '00'}
-            </span>
-            <span className="rounded-full bg-blue-100 p-4 text-blue-800 shadow-md">
-              {lottoNumber.length !== 0 ? lottoNumber[1] : '00'}
-            </span>
-            <span className="rounded-full bg-blue-100 p-4 text-blue-800 shadow-md">
-              {lottoNumber.length !== 0 ? lottoNumber[2] : '00'}
-            </span>
-            <span className="rounded-full bg-blue-100 p-4 text-blue-800 shadow-md">
-              {lottoNumber.length !== 0 ? lottoNumber[3] : '00'}
-            </span>
-            <span className="rounded-full bg-blue-100 p-4 text-blue-800 shadow-md">
-              {lottoNumber.length !== 0 ? lottoNumber[4] : '00'}
-            </span>
-            <span className="rounded-full bg-blue-100 p-4 text-blue-800 shadow-md">
-              {lottoNumber.length !== 0 ? lottoNumber[5] : '00'}
-            </span>
+            <div className="mt-10 space-x-4">
+              <span className="rounded-full bg-blue-100 p-4 text-blue-800 shadow-md">
+                {eurosNumber.length !== 0 ? eurosNumber.numbers[0] : '00'}
+              </span>
+              <span className="rounded-full bg-blue-100 p-4 text-blue-800 shadow-md">
+                {eurosNumber.length !== 0 ? eurosNumber.numbers[1] : '00'}
+              </span>
+              <span className="rounded-full bg-blue-100 p-4 text-blue-800 shadow-md">
+                {eurosNumber.length !== 0 ? eurosNumber.numbers[2] : '00'}
+              </span>
+              <span className="rounded-full bg-blue-100 p-4 text-blue-800 shadow-md">
+                {eurosNumber.length !== 0 ? eurosNumber.numbers[3] : '00'}
+              </span>
+              <span className="rounded-full bg-blue-100 p-4 text-blue-800 shadow-md">
+                {eurosNumber.length !== 0 ? eurosNumber.numbers[4] : '00'}
+              </span>
+              <span className="rounded-full bg-blue-100 p-4 text-blue-800 shadow-md">
+                {eurosNumber.length !== 0 ? eurosNumber.stars[0] : '00'}
+              </span>
+              <span className="rounded-full bg-blue-100 p-4 text-blue-800 shadow-md">
+                {eurosNumber.length !== 0 ? eurosNumber.stars[1] : '00'}
+              </span>
+            </div>
           </div>
         </div>
       </div>

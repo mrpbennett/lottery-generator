@@ -6,11 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.0.0] - 2017-06-20
-### Added
-- New visual identity by [@tylerfortune8](https://github.com/tylerfortune8).
-- Version navigation.
-- Links to latest released version in previous versions.
-- "Why keep a changelog?" section.
-- "Who needs a changelog?" section.
-- "How do I make a changelog?" sectio
+## [0.0.2] - 2022-07-29
+
+## Changed
+
+- split the euro millions and lotto functions into seperate files
+
+## Added
+
+- euro millions versions of `get_highest_lotto_count` and `common_lotto_generator`
+- generate euros millions ticket button and output to front end.
+
+## [0.0.1] - 2022-07-28
+- initial release
