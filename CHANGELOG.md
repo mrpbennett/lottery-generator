@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.3]
+
+### Changed
+
+- After spliting out the functions into their seperate files. `data.py` was created to run those functions, instead of running them seperatly. 
+- Reversing of the `eurosDate` in `App.jsx` to get the latest date from the tables.
+- Removed the old functions that got the highest drawn number in replacement of a cleaner function using `nlargest`
+
 ## [[0.0.2]](https://github.com/mrpbennett/lottery-generator/commit/5ec82be866f6efb157ae34de3c18b404a3929c02) - 2022-07-29
 
 ### Changed

@@ -1,6 +1,7 @@
 import os
 import random
 from collections import Counter
+from heapq import nlargest
 
 import pandas as pd
 import requests
@@ -15,7 +16,7 @@ key = os.getenv("SUPABASE_KEY")
 supabase: Client = create_client(url, key)
 
 
-def download_latest_euro_draw_file() -> None:
+def download_latest_euro_draw_file() -> bool:
     """
     Downloads the latest draw history from the website.
     Then adds them into a supabase database if no date is duplicated.
@@ -74,6 +75,8 @@ def download_latest_euro_draw_file() -> None:
             # insert row into supabase when no duplicate dates are found.
             supabase.table("euro_draw_history").insert(row).execute()
 
+    return True
+
 
 def drawn_euro_numbers() -> dict:
     """
@@ -106,61 +109,30 @@ def drawn_euro_numbers() -> dict:
 def collect_duplicate_euro_numbers() -> dict:
     """Collect the drawn numbers and stars and counts them to return them sorted"""
 
-    data = drawn_euro_numbers()
+    data: dict = drawn_euro_numbers()
 
-    numbers = Counter(data["numbers"]).most_common()
-    stars = Counter(data["stars"]).most_common()
+    numbers: list = Counter(data["numbers"]).most_common()
+    stars: list = Counter(data["stars"]).most_common()
 
     return dict(numbers=numbers, stars=stars)
 
 
-def get_highest_euro_numbers_stars(data) -> dict:
-    numbers = data["numbers"]
-    stars = data["stars"]
-
-    highest_count_numbers: list = [num[1] for num in numbers]
-    high_count_nums = list(set(highest_count_numbers))
-    high_count_nums.reverse()
-
-    highest_count_stars: list = [num[1] for num in stars]
-    high_count_stars = list(set(highest_count_stars))
-    high_count_stars.reverse()
-
-    return dict(numbers=high_count_nums[:5], stars=high_count_stars[:2])
-
-
 def common_euros_generator() -> dict:
 
-    high_count_nums_stars = get_highest_euro_numbers_stars(
-        collect_duplicate_euro_numbers()
-    )
     data = collect_duplicate_euro_numbers()
 
-    numbers = data["numbers"]
-    stars = data["stars"]
+    numbers: list = data["numbers"]
+    stars: list = data["stars"]
 
-    common_number_drawn: list = [
-        num[0] for num in numbers if num[1] in high_count_nums_stars["numbers"]
-    ]
+    number_counts: set = set(nlargest(5, {count for _, count in numbers}))
+    star_counts: set = set(nlargest(2, {count for _, count in stars}))
 
-    common_star_drawn: list = [
-        num[0] for num in stars if num[1] in high_count_nums_stars["stars"]
+    common_numbers: list = [
+        number for number, count in numbers if count in number_counts
     ]
+    common_stars: list = [star for star, count in stars if count in star_counts]
 
     return dict(
-        numbers=random.sample(common_number_drawn, 6),
-        stars=random.sample(common_star_drawn, 2),
+        numbers=random.sample(common_numbers, 5),
+        stars=random.sample(common_stars, 2),
     )
-
-
-def main():
-
-    # Step 1: Download the latest draw history from the website
-    download_latest_euro_draw_file()
-
-    # Step 2: Collect the latest seperated draw history from the database
-    drawn_euro_numbers()
-
-
-if __name__ == "__main__":
-    main()

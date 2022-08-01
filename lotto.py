@@ -1,6 +1,7 @@
 import os
 import random
 from collections import Counter
+from heapq import nlargest
 
 import pandas as pd
 import requests
@@ -29,7 +30,7 @@ def generate_numbers(ticket: str) -> list[int]:
     return numbers
 
 
-def download_latest_lotto_draw_file() -> None:
+def download_latest_lotto_draw_file() -> bool:
     """
     Downloads the latest draw history from the website.
     Then adds them into a supabase database if no date is duplicated.
@@ -88,6 +89,8 @@ def download_latest_lotto_draw_file() -> None:
             # insert row into supabase when no duplicate dates are found.
             supabase.table("lotto_draw_history").insert(row).execute()
 
+    return True
+
 
 def drawn_lotto_numbers() -> dict:
     """
@@ -127,42 +130,17 @@ def collect_duplicate_lotto_numbers() -> dict:
     return dict(lotto=numbers)
 
 
-def get_highest_lotto_count(data) -> list:
-    """Takes all numbers from 2nd index then extracts the top 6 numbers"""
-    numbers = data["lotto"]
-    highest_count_numbers: list = [num[1] for num in numbers]
-    high_count_nums = list(set(highest_count_numbers))
-    high_count_nums.reverse()
-
-    return high_count_nums[:6]
-
-
 def common_lotto_generator() -> list:
+
     """
     This takes the top 6 numbers from get_highest_lotto_count and generates a list
     from the all the numbers that have the same 2nd index.
 
     Then generates a random 6 digit number from the list.
     """
-    high_count_numbers = get_highest_lotto_count(collect_duplicate_lotto_numbers())
     data = collect_duplicate_lotto_numbers()
     numbers = data["lotto"]
+    counts = set(nlargest(6, {count for _, count in numbers}))
 
-    common_number_drawn: list = [
-        num[0] for num in numbers if num[1] in high_count_numbers
-    ]
-
-    return random.sample(common_number_drawn, 6)
-
-
-def main():
-
-    # Step 1: Download the latest draw history from the website
-    download_latest_lotto_draw_file()
-
-    # Step 2: Collect the latest seperated draw history from the database
-    drawn_lotto_numbers()
-
-
-if __name__ == "__main__":
-    main()
+    common_numbers: list = [number for number, count in numbers if count in counts]
+    return random.sample(common_numbers, 6)

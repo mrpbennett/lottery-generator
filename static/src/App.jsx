@@ -100,8 +100,6 @@ function App() {
       .catch(error => console.error(error))
   }
 
-  console.log(eurosNumber)
-
   useEffect(() => {
     // get numbers from api
     getLottoNumbers()
@@ -196,7 +194,9 @@ function App() {
         <div className="text-gray-400">
           Latest Euros draw date:{' '}
           <span className="font-mono text-gray-700">
-            {eurosDate.length !== 0 ? eurosDate[0].draw_date : null}
+            {eurosDate.length !== 0
+              ? eurosDate[eurosDate.length - 1].draw_date
+              : null}
           </span>{' '}
           with <span className="font-mono text-gray-700">{eurosRowCount}</span>{' '}
           rows of data.
