@@ -12,6 +12,10 @@ function App() {
   const [numbers, setNumbers] = useState([])
   const [stars, setStars] = useState([])
 
+  // Latest draws
+  const [latestLottoDraw, setLatestLottoDraw] = useState([])
+  const [latestEuroDraw, setLatestEuroDraw] = useState([])
+
   //dates
   const [lottoDate, setLottoDate] = useState([])
   const [eurosDate, setEurosDate] = useState([])
@@ -51,6 +55,26 @@ function App() {
 
     setLottoDate(data)
   }
+
+  const getLatestLotto = async () => {
+    const {data, error} = await supabase.from('lotto_draw_history').select('*')
+
+    if (error) {
+      console.log(error)
+    }
+
+    setLatestLottoDraw(data)
+  }
+  const getLatestEuroMillions = async () => {
+    const {data, error} = await supabase.from('euro_draw_history').select('*')
+
+    if (error) {
+      console.log(error)
+    }
+
+    setLatestEuroDraw(data)
+  }
+
   const getEurosDate = async () => {
     const {data, error} = await supabase
       .from('euro_draw_history')
@@ -112,7 +136,14 @@ function App() {
     // get row count of lotto and euros
     getLottoRowCount()
     getEurosRowCount()
+
+    // Get latest numbers
+    getLatestLotto()
+    getLatestEuroMillions()
   }, [])
+
+  console.log('latest lotto', latestLottoDraw)
+  console.log('latest euro', latestEuroDraw)
 
   return (
     <div className="container mx-auto mb-20 flex space-x-14">
@@ -262,6 +293,78 @@ function App() {
                 {eurosNumber.length !== 0 ? eurosNumber.stars[1] : '00'}
               </span>
             </div>
+          </div>
+
+          <div>
+            {latestLottoDraw.length !== 0 ? (
+              <>
+                <h3>
+                  Latest Lotto Draw{' '}
+                  <span className="text-sm text-gray-400">
+                    {latestLottoDraw[latestLottoDraw.length - 1].draw_date}
+                  </span>
+                </h3>
+                <div className="mt-10 space-x-4">
+                  <span className="rounded-full bg-blue-100 p-4 text-blue-800 shadow-md">
+                    {latestLottoDraw[latestLottoDraw.length - 1].ball_1}
+                  </span>
+                  <span className="rounded-full bg-blue-100 p-4 text-blue-800 shadow-md">
+                    {latestLottoDraw[latestLottoDraw.length - 1].ball_2}
+                  </span>
+                  <span className="rounded-full bg-blue-100 p-4 text-blue-800 shadow-md">
+                    {latestLottoDraw[latestLottoDraw.length - 1].ball_3}
+                  </span>
+                  <span className="rounded-full bg-blue-100 p-4 text-blue-800 shadow-md">
+                    {latestLottoDraw[latestLottoDraw.length - 1].ball_4}
+                  </span>
+                  <span className="rounded-full bg-blue-100 p-4 text-blue-800 shadow-md">
+                    {latestLottoDraw[latestLottoDraw.length - 1].ball_5}
+                  </span>
+                  <span className="rounded-full bg-blue-100 p-4 text-blue-800 shadow-md">
+                    {latestLottoDraw[latestLottoDraw.length - 1].ball_6}
+                  </span>
+                  <span className="rounded-full bg-red-100 p-4 text-blue-800 shadow-md">
+                    {latestLottoDraw[latestLottoDraw.length - 1].bonus_ball}
+                  </span>
+                </div>
+              </>
+            ) : null}
+          </div>
+
+          <div>
+            {latestEuroDraw.length !== 0 ? (
+              <>
+                <h3>
+                  Latest Euro Millions Draw{' '}
+                  <span className="text-sm text-gray-400">
+                    {latestEuroDraw[latestEuroDraw.length - 1].draw_date}
+                  </span>
+                </h3>
+                <div className="mt-10 space-x-4">
+                  <span className="rounded-full bg-blue-100 p-4 text-blue-800 shadow-md">
+                    {latestEuroDraw[latestEuroDraw.length - 1].ball_1}
+                  </span>
+                  <span className="rounded-full bg-blue-100 p-4 text-blue-800 shadow-md">
+                    {latestEuroDraw[latestEuroDraw.length - 1].ball_2}
+                  </span>
+                  <span className="rounded-full bg-blue-100 p-4 text-blue-800 shadow-md">
+                    {latestEuroDraw[latestEuroDraw.length - 1].ball_3}
+                  </span>
+                  <span className="rounded-full bg-blue-100 p-4 text-blue-800 shadow-md">
+                    {latestEuroDraw[latestEuroDraw.length - 1].ball_4}
+                  </span>
+                  <span className="rounded-full bg-blue-100 p-4 text-blue-800 shadow-md">
+                    {latestEuroDraw[latestEuroDraw.length - 1].ball_5}
+                  </span>
+                  <span className="rounded-full bg-yellow-100 p-4 text-blue-800 shadow-md">
+                    {latestEuroDraw[latestEuroDraw.length - 1].lucky_star_1}
+                  </span>
+                  <span className="rounded-full bg-yellow-100 p-4 text-blue-800 shadow-md">
+                    {latestEuroDraw[latestEuroDraw.length - 1].lucky_star_2}
+                  </span>
+                </div>
+              </>
+            ) : null}
           </div>
         </div>
       </div>
